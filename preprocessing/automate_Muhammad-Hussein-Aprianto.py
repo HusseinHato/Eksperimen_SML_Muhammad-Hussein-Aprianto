@@ -1,6 +1,7 @@
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler, LabelEncoder
 
+# read raw dataset
 processed_df = pd.read_csv('../croprecommendation_raw.csv')
 
 processed_df = processed_df.dropna()
@@ -32,5 +33,6 @@ processed_df[numerical_cols] = scaler.fit_transform(processed_df[numerical_cols]
 
 label_encoder = LabelEncoder()
 processed_df['label'] = label_encoder.fit_transform(processed_df['label'])
+
 
 processed_df.to_csv('../preprocessing/croprecommendation_preprocessing.csv', index=False)
