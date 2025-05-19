@@ -1,0 +1,108 @@
+name: Preprocessing Dataset
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set Up Python 3.12.9
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.12.9"
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pandas scikit-learn
+
+      - name: Check repository structure
+        run: |
+          echo "📁 Repository structure:"
+          echo "Root directory:"
+          ls -la
+          
+          echo -e "\n📄 Checking for raw dataset:"
+          if [ -f "croprecommendation_raw.csv" ]; then
+            echo "✓ Found croprecommendation_raw.csv"
+            echo "  File size: $(du -h croprecommendation_raw.csv | cut -f1)"
+            echo "  Preview (first 5 lines):"
+            head -5 croprecommendation_raw.csv | sed 's/^/    /'
+          else
+            echo "❌ croprecommendation_raw.csv not found"
+            exit 1
+          fi
+          
+          echo -e "\n📁 Preprocessing directory:"
+          if [ -d "preprocessing" ]; then
+            ls -la preprocessing/
+            
+            # Check for preprocessing script
+            if [ -f "preprocessing/automate_Muhammad-Hussein-Aprianto.py" ]; then
+              echo "✓ Found preprocessing script"
+            else
+              echo "❌ automate_Muhammad-Hussein-Aprianto.py not found in preprocessing directory"
+              exit 1
+            fi
+          else
+            echo "❌ preprocessing directory not found"
+            exit 1
+          fi
+
+      - name: Run data preprocessing
+        working-directory: preprocessing
+        run: |
+          echo "🔄 Starting data preprocessing..."
+          
+          # Check if automate script exists
+          if [ -f "automate_Nama-siswa.py" ]; then
+            echo "Running automate_Nama-siswa.py..."
+            python automate_Nama-siswa.py
+            
+            # Check if script ran successfully
+            if [ $? -eq 0 ]; then
+              echo "✅ Preprocessing script completed successfully"
+            else
+              echo "❌ Preprocessing script failed"
+              exit 1
+            fi
+          else
+            echo "❌ automate_Nama-siswa.py not found"
+            exit 1
+          fi
+
+      - name: Commit processed data
+        run: |
+          git config --global user.name "HusseinHato"
+          git config --global user.email "riantonaruto@gmail.com"
+          
+          # Check if processed data has changed
+          if git diff --quiet preprocessing/namadataset_preprocessing.csv; then
+            echo "ℹ️ No changes detected in processed data"
+          else
+            # Add processed data
+            git add preprocessing/namadataset_preprocessing.csv
+            
+            # Commit the changes
+            git commit -m "🤖 Auto-update: Dataset preprocessing completed
+            
+            - Workflow: ${{ github.workflow }}
+            - Run: ${{ github.run_id }}
+            - Commit: ${{ github.sha }}
+            - Timestamp: $(date -u +'%Y-%m-%d %H:%M:%S UTC')
+            
+            [skip ci]"
+            
+            git push
+            echo "✅ Processed data committed to repository"
+          fi
