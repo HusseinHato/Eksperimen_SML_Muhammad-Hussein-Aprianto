@@ -82,9 +82,12 @@ jobs:
           fi
 
       - name: Commit processed data
+        env:
+          username: ${{ secrets.USERNAME }}
+          email: ${{ secrets.EMAIL }}
         run: |
-          git config --global user.name ${{ secrets.USERNAME }}
-          git config --global user.email ${{ secrets.EMAIL }}
+          git config --global user.name "${{ env.username }}"
+          git config --global user.email "${{ env.email }}"
           
           # Check if processed data has changed
           if git diff --quiet preprocessing/croprecommendation_preprocessing.csv; then
