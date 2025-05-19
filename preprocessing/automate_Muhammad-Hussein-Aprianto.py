@@ -1,11 +1,11 @@
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler, LabelEncoder
 
-df = pd.read_csv('../croprecommendation_raw.csv')
+processed_df = pd.read_csv('./croprecommendation_raw.csv')
 
 processed_df = processed_df.dropna()
 
-processed_df = df.drop_duplicates()
+processed_df = processed_df.drop_duplicates()
 
 numerical_cols = ['K', 'N', 'P', 'temperature', 'humidity', 'ph', 'rainfall']
 
