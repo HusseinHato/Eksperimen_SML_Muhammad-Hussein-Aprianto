@@ -1,6 +1,7 @@
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler, LabelEncoder
 from typing import Tuple
+import os
 
 def preprocess_crop_data(
     input_path: str, 
@@ -72,8 +73,11 @@ def preprocess_crop_data(
 
 # Example usage
 if __name__ == "__main__":
-    input_path = 'croprecommendation_raw.csv'
-    output_path = 'preprocessing/croprecommendation_preprocessing.csv'
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    root_dir = os.path.dirname(script_dir)
+
+    input_path = os.path.join(root_dir, 'croprecommendation_raw.csv')
+    output_path = os.path.join(script_dir, 'croprecommendation_preprocessing.csv')
     
     try:
         processed_df, summary = preprocess_crop_data(input_path, output_path)
